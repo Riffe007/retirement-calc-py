@@ -1,0 +1,68 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import spy.csv as spy
+
+rate = 1.07
+years_saving = 48
+initial_savings = 12000
+model = pd.DataFrame({'t': range(years_saving)})
+model['simple_exp'] = [initial_savings*rate**year for year in model.t]
+
+plt.figure()
+plt.plot(model.t, model.simple_exp)
+plt.title('Exponential Growth of Initial Savings')
+plt.xlabel('time (years)')
+plt.ylabel('value ($)')
+
+
+yearly_contribution = 12000
+model['yearly_invest'] = model['simple_exp'] + [yearly_contribution*(rate**year - 1)/(rate-1) for year in model.t]
+plt.plot(model.t, model.yearly_invest)
+plt.title('Exponential Growth of Yearly $' + str(yearly_contribution) + ' Contribution')
+plt.legend(['initial savings', 'yearly contribution'])
+
+spy = pd.read_csv('spy.csv')
+spy['Date'] = pd.to_datetime(spy['Date'])
+spy['t'] = (spy.Date - spy.Date.min()) / np.timedelta64(1, 'Y')
+
+shares = initial_savings / ixic.Close.iloc[0]
+share_col = pd.Series(index=ixic.index)
+for index, row in ixic.iterrows():
+    if row.t >= round(row.t) and spy.t.iloc[index-1] < round(row.t):
+        shares += yearly_contribution / row.Close
+    share_col.iloc[index] = shares
+spy['shares'] = share_col
+plt.plot(ixic.t, spy.Close*ixic.shares)
+plt.title('Index Fund Performance of Yearly $' + str(yearly_contribution) + ' Contribution')
+plt.legend(['initial savings', 'yearly contribution', 'index fund'])
+
+shares = initial_savings / spy.Close.iloc[0]
+share_col = pd.Series(index=spy.index)
+for index, row in spy.iterrows():
+    if row.t >= round(row.t) and spy.t.iloc[index-1] < round(row.t):
+        shares += yearly_contribution / row.Close
+        yearly_contribution *= 1.05
+    share_col.iloc[index] = shares
+spy['shares_inc'] = share_col
+plt.plot(spy.t, spy.Close*spy.shares_inc)
+plt.title('Index Fund Performance of Increasing Yearly Contribution')
+plt.legend(['initial savings', 'yearly contribution', 'index fund', 'index fund increasing'])
+
+payday_contribution = 23.08
+shares = initial_savings / spy.Close.iloc[0]
+share_col = pd.Series(index=spy.index)
+prev_day = spy.Date.iloc[0].day
+for index, row in spy.iterrows():
+    today = spy.Date.iloc[index-1].day
+    if prev_day > 15 and today < 10 or prev_day < 15 and today >= 15:
+        shares += payday_contribution / row.Close
+    if row.t >= round(row.t) and spy.t.iloc[index-1] < round(row.t):
+        payday_contribution *= 1.05
+    share_col.iloc[index] = shares
+    prev_day = today
+spy['shares_inc_payday'] = share_col
+plt.plot(spy.t, spy.Close*spy.shares_inc_payday)
+plt.title('Index Fund Performance of Increasing Paycheck Contribution')
+plt.legend(['initial savings', 'yearly contribution', 'index fund', 'index fund increasing', 'index fund payday'])
+
